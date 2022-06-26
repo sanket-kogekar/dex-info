@@ -2,9 +2,11 @@
 
 A dashboard which displays info of Decentralized Exchanges (DEXs) using Covalent API. Supports multiple chains.
 
+The aim of this project is to create a alternative for CoinGecko using Covelent APIs.
+
 API Used: api.covalenthq.com/v1/:chainId/xy=k/:dexname/ecosystem/
 
-Currently, the Covalent API needs a little improvement and does not fetch precise data for every chain and dex combination, but at least one dex is fetched for most of the included chains.
+Currently, the Covalent API needs a little improvement and does not fetch precise data for every chain and dex combination, but at least one dex is fetched for most of the included chains in the app.
 
 ![dex-info](https://user-images.githubusercontent.com/75581935/175809576-4d725bac-6ed6-4041-9f09-2d3d52a39a51.png)
 
