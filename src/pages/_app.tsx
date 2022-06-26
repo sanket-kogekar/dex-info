@@ -3,6 +3,7 @@ import { APP_NAME } from '@/lib/consts'
 import '@rainbow-me/rainbowkit/styles.css'
 import { chain, createClient, WagmiConfig } from 'wagmi'
 import { apiProvider, configureChains, getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { ChakraProvider } from '@chakra-ui/react'
 
 const { chains, provider } = configureChains(
 	[chain.optimism],
@@ -14,11 +15,13 @@ const wagmiClient = createClient({ autoConnect: true, connectors, provider })
 
 const App = ({ Component, pageProps }) => {
 	return (
-		<WagmiConfig client={wagmiClient}>
-			<RainbowKitProvider chains={chains}>
-				<Component {...pageProps} />
-			</RainbowKitProvider>
-		</WagmiConfig>
+		<ChakraProvider>
+			<WagmiConfig client={wagmiClient}>
+				<RainbowKitProvider chains={chains}>
+					<Component {...pageProps} />
+				</RainbowKitProvider>
+			</WagmiConfig>
+		</ChakraProvider>
 	)
 }
 

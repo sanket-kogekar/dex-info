@@ -1,150 +1,329 @@
-import { FC } from 'react'
-import { APP_NAME } from '@/lib/consts'
-import { BookOpenIcon, CodeIcon, ShareIcon } from '@heroicons/react/outline'
+import { FC, useEffect, useState } from 'react'
+import {
+	Box,
+	Flex,
+	HStack,
+	Select,
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	TableCaption,
+	TableContainer,
+	Text,
+} from '@chakra-ui/react'
+import { PageWrapper } from '@/components/Core/PageWrapper'
+import { Layout } from '@/components/Core/Layout'
+import { getEcosystem } from '@/lib/hooks/api-calls'
+
+const chains = [
+	{ id: 56, name: 'BSC Mainnet', dexList: ['sushiswap', 'pancakeswap_v2', 'apeswap', 'empiredex', 'moonlift'] },
+	{ id: 137, name: 'Matic Mainnet', dexList: ['quickswap', 'sushiswap'] },
+	{ id: 1, name: 'Ethereum Mainnet', dexList: ['uniswap_v2', 'sushiswap'] },
+	{ id: 4002, name: 'Fantom Testnet', dexList: ['sushiswap'] },
+	{ id: 43114, name: 'Avalanche Testnet', dexList: ['sushiswap'] },
+	{ id: 43113, name: 'Avalanche Mainnet', dexList: ['sushiswap', 'pangolin', 'traderjoe'] },
+	{ id: 80001, name: 'Matic Mumbai', dexList: ['sushiswap'] },
+	{ id: 2020, name: 'Axie Mainnet', dexList: ['katana'] },
+	{ id: 1284, name: 'Moonbeam Mainnet', dexList: ['stellaswap', 'beamswap'] },
+	{ id: 4689, name: 'Iotex Mainnet', dexList: ['mimo'] },
+	{ id: 8217, name: 'Klayton Mainnet', dexList: ['claimswap'] },
+	{ id: 1313161554, name: 'Aurora Mainnet', dexList: ['wannaswap', 'trisolaris'] },
+	{ id: 9001, name: 'Evmos Mainnet', dexList: ['diffusion', 'cronus', 'evmoswap'] },
+	{ id: 592, name: 'Astar Mainnet', dexList: ['arthswap'] },
+	// { id: 250, name: 'Fantom Mainnet', dexList: ['spookyswap', 'sushiswap', 'spiritswap'] },
+	// { id: 56, name: 'Astar Shiden', dexList: ['standard'] },
+]
+
+const dexNameMapping = {
+	quickswap: 'QuickSwap',
+	uniswap_v2: 'Uniswap V2',
+	sushiswap: 'Sushiswap',
+	pancakeswap_v2: 'Pancakeswap V2',
+	spiritswap: 'SpiritSwap',
+	spookyswap: 'Spookyswap',
+	pangolin: 'Pangolin',
+	traderjoe: 'TraderJoe',
+	apeswap: 'ApeSwap',
+	empiredex: 'EmpireDex',
+	moonlift: 'Moonlift',
+	katana: 'Katana',
+	stellaswap: 'StellaSwap',
+	beamswap: 'BeamSwap',
+	claimswap: 'Claimswap',
+	mimo: 'Mimo',
+	wannaswap: 'WannaSwap',
+	trisolaris: 'Trisolaris',
+	diffusion: 'Diffusion',
+	cronus: 'Cronus',
+	evmoswap: 'EvmoSwap',
+	arthswap: 'ArthSwap',
+}
 
 const Home: FC = () => {
+	const [chainId, setChainId] = useState<any>(chains[0].id)
+	const [results, setResults] = useState<any[]>([])
+
+	const handleRes = async () => {
+		console.log('chain ID', chainId)
+
+		const chain = chains.find((item: any) => item.id == chainId)
+
+		console.log('chain', chain)
+
+		if (!chain) {
+			return undefined
+		}
+
+		let i = 0
+		for (i = 0; i < chain.dexList.length; i++) {
+			const dexId = chain.dexList[i]
+			const res = await getEcosystem(chainId, dexId)
+			if (!!res && typeof res.error === 'boolean' && !res.error && !!res.data.items[0]) {
+				const priorResults = [...results]
+				const ecosystemData = res.data.items[0]
+
+				let initVal1: number,
+					initVal2: number = 0
+
+				priorResults.push({
+					name: !!dexNameMapping[ecosystemData.dex_name]
+						? dexNameMapping[ecosystemData.dex_name]
+						: ecosystemData.dex_name,
+					totalActivePairs: ecosystemData.total_active_pairs_7d,
+					totalFees24hr: ecosystemData.total_fees_24h,
+					totalSwaps24hr: ecosystemData.total_swaps_24h,
+					swapCountLast24hr: !!ecosystemData.volume_chart_7d[0].swap_count_24
+						? ecosystemData.volume_chart_7d[0].swap_count_24
+						: 'Not Availalbe',
+					volume24hr: ecosystemData.volume_chart_7d[0].volume_quote,
+					volume7d: ecosystemData.volume_chart_7d.reduce(
+						(totalValue: number, item: any) => totalValue + item.volume_quote,
+						initVal1
+					),
+					liquidity24hr: ecosystemData.liquidity_chart_7d[0].liquidity_quote,
+					liquidity7d: ecosystemData.liquidity_chart_7d.reduce(
+						(totalValue: number, item: any) => totalValue + item.liquidity_quote,
+						initVal2
+					),
+				})
+
+				setResults(priorResults)
+			}
+		}
+	}
+
+	useEffect(() => {
+		console.log('My chainId', chainId)
+		handleRes()
+	}, [chainId])
+
 	return (
-		<div className="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
-			<div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
-				<div className="flex justify-center pt-8 sm:justify-start sm:pt-0">
-					<h1 className="text-6xl font-bold dark:text-white">{APP_NAME}</h1>
-				</div>
-
-				<div className="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow sm:rounded-lg">
-					<div className="grid grid-cols-1 md:grid-cols-2">
-						<div className="p-6">
-							<div className="flex items-center">
-								<BookOpenIcon className="w-8 h-8 text-gray-500" />
-								<div className="ml-4 text-lg leading-7 font-semibold">
-									<a
-										href="https://laravel.com/docs"
-										className="underline text-gray-900 dark:text-white"
-									>
-										Next.js Docs
-									</a>
-								</div>
-							</div>
-
-							<div className="ml-12">
-								<div className="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-									Next.js gives you the best developer experience with all the features you need for
-									production: hybrid static &amp; server rendering, TypeScript support, smart
-									bundling, route pre-fetching, and more. No config needed.
-								</div>
-							</div>
-						</div>
-
-						<div className="p-6 border-t border-gray-200 dark:border-gray-700 md:border-t-0 md:border-l">
-							<div className="flex items-center">
-								<BookOpenIcon className="w-8 h-8 text-gray-500" />
-								<div className="ml-4 text-lg leading-7 font-semibold">
-									<a href="https://laracasts.com" className="underline text-gray-900 dark:text-white">
-										wagmi Docs
-									</a>
-								</div>
-							</div>
-
-							<div className="ml-12">
-								<div className="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-									wagmi is a collection of React Hooks containing everything you need to start working
-									with Ethereum. wagmi makes it easy to display ENS and balance information, sign
-									messages, interact with contracts, and much more — all with caching, request
-									deduplication, and persistence.
-								</div>
-							</div>
-						</div>
-
-						<div className="p-6 border-t border-gray-200 dark:border-gray-700">
-							<div className="flex items-center">
-								<BookOpenIcon className="w-8 h-8 text-gray-500" />
-								<div className="ml-4 text-lg leading-7 font-semibold">
-									<a
-										href="https://laravel-news.com/"
-										className="underline text-gray-900 dark:text-white"
-									>
-										Tailwind Docs
-									</a>
-								</div>
-							</div>
-
-							<div className="ml-12">
-								<div className="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-									Tailwind CSS is a highly customizable, low-level CSS framework that gives you all of
-									the building blocks you need to build bespoke designs without any annoying
-									opinionated styles you have to fight to override.
-								</div>
-							</div>
-						</div>
-
-						<div className="p-6 border-t border-gray-200 dark:border-gray-700 md:border-l">
-							<div className="flex items-center">
-								<CodeIcon className="w-8 h-8 text-gray-500" />
-								<div className="ml-4 text-lg leading-7 font-semibold text-gray-900 dark:text-white">
-									About this Template
-								</div>
-							</div>
-
-							<div className="ml-12">
-								<div className="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-									This starter kit is composed of{' '}
-									<a href="https://nextjs.org" className="underline" target="_blank" rel="noreferrer">
-										Next.js
-									</a>{' '}
-									and{' '}
-									<a
-										href="https://tailwindcss.com"
-										className="underline"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Tailwind CSS
-									</a>
-									, with{' '}
-									<a
-										href="https://rainbowkit.com"
-										className="underline"
-										target="_blank"
-										rel="noreferrer"
-									>
-										RainbowKit
-									</a>
-									,{' '}
-									<a href="https://ethers.org" className="underline" target="_blank" rel="noreferrer">
-										ethers
-									</a>{' '}
-									&amp;{' '}
-									<a href="https://wagmi.sh" className="underline" target="_blank" rel="noreferrer">
-										wagmi
-									</a>{' '}
-									for all your web3 needs. It uses{' '}
-									<a
-										href="https://www.typescriptlang.org/"
-										className="underline"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Typescript
-									</a>{' '}
-									and an opinionated directory structure for maximum dev confy-ness. Enjoy!
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div className="flex justify-center mt-4 sm:items-center sm:justify-between">
-					<div className="text-center text-sm text-gray-500 sm:text-left">
-						<div className="flex items-center">
-							<ShareIcon className="-mt-px w-5 h-5 text-gray-400" />
-
-							<a href="https://twitter.com/m1guelpf" className="ml-1 underline">
-								Share
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<PageWrapper pageTitle="DexInfo">
+			<Layout>
+				<Box>
+					<Flex justifyContent="center" alignItems="center">
+						<Box>
+							<HStack justifyContent="center" alignItems="center" mt="6">
+								<Select
+									placeholder="Select Chain"
+									size="lg"
+									maxW="450px"
+									onChange={e => {
+										console.log('e.target.value', e.target.value)
+										setResults([])
+										setChainId(e.target.value)
+									}}
+									borderColor="green"
+									value={chainId}
+								>
+									{chains.map(chain => (
+										<option key={chain.id} value={chain.id}>
+											{chain.name}
+										</option>
+									))}
+								</Select>
+							</HStack>
+							<Flex justifyContent="center" alignItems="center">
+								<Box
+									bg="white"
+									my="35px"
+									py="20px"
+									borderRadius={10}
+									px="30px"
+									boxShadow="0px 4px 14px rgba(0, 0, 0, 0.15)"
+									borderWidth="10px"
+								>
+									<TableContainer borderColor="black" borderRadius="10px">
+										<Table variant="striped" borderColor="black" borderRadius="10px">
+											<TableCaption placement="top">
+												<Flex justifyContent="center" px="10" pb="10">
+													<Text
+														h="40px"
+														fontWeight="bold"
+														px="10"
+														color="#2D3436"
+														fontSize="19px"
+													>
+														Values fetched from Covalent API
+													</Text>
+												</Flex>
+											</TableCaption>
+											<Thead justifyContent="center" alignItems="center">
+												<Tr
+													h="50px"
+													borderBottomWidth="1px"
+													color="#707070"
+													fontSize="17px"
+													borderRadius="10px"
+												>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Name</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Total Swaps (24hr)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Total Active Pairs (24Hr)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Total Fees (24hr)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Volume (24hr)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Volume (7d)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Swap Count (Last 24hr)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Liquidity (24Hr)</Flex>
+													</Th>
+													<Th
+														color="#707070"
+														borderLeftWidth="1px"
+														borderColor="#E7E7E7"
+														w="200px"
+														px="5"
+													>
+														<Flex justifyContent="center">Liquidity (7d)</Flex>
+													</Th>
+												</Tr>
+											</Thead>
+											<Tbody>
+												{results.map((item: any) => (
+													<Tr
+														h="50px"
+														borderBottomWidth="1px"
+														borderColor="#DFE6E9"
+														color="#707070"
+														fontSize="16px"
+													>
+														<Td
+															color="#2D3436"
+															w="200px"
+															px="5"
+															borderBottomWidth="1px"
+															borderColor="#DFE6E9"
+														>
+															<Flex justifyContent="center">{item.name}</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">{item.totalActivePairs}</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">${item.totalFees24hr}</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">{item.totalSwaps24hr}</Flex>
+														</Td>
+														<Td
+															color="#2D3436"
+															w="200px"
+															px="5"
+															borderBottomWidth="1px"
+															borderColor="#DFE6E9"
+														>
+															<Flex justifyContent="center">
+																{item.swapCountLast24hr}
+															</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">{item.volume24hr}</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">{item.volume7d}</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">${item.liquidity24hr}</Flex>
+														</Td>
+														<Td color="black" fontWeight="500" w="200px" px="5">
+															<Flex justifyContent="center">${item.liquidity7d}</Flex>
+														</Td>
+													</Tr>
+												))}
+											</Tbody>
+										</Table>
+									</TableContainer>
+								</Box>
+							</Flex>
+						</Box>
+					</Flex>
+				</Box>
+			</Layout>
+		</PageWrapper>
 	)
 }
 

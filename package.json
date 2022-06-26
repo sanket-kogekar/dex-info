@@ -1,5 +1,5 @@
 {
-	"name": "dapp-starter",
+	"name": "dex-info",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
@@ -9,16 +9,22 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@chakra-ui/react": "^2.2.1",
+		"@emotion/react": "^11",
+		"@emotion/styled": "^11",
 		"@heroicons/react": "^1.0.6",
 		"@rainbow-me/rainbowkit": "^0.1.1",
 		"autoprefixer": "^10.4.7",
 		"ethers": "^5.6.7",
+		"framer-motion": "^6",
 		"next": "12.1.6",
 		"postcss": "^8.4.14",
 		"react": "18.1.0",
 		"react-dom": "18.1.0",
 		"tailwindcss": "^3.0.24",
-		"wagmi": "^0.4.1"
+		"wagmi": "^0.4.1",
+		"react-icons": "^4.2.0",
+		"axios": "^0.21.1"
 	},
 	"devDependencies": {
 		"@types/node": "^17.0.35",
