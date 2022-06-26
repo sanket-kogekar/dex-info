@@ -4,7 +4,7 @@ A dashboard which displays info of Decentralized Exchanges (DEXs) using Covalent
 
 API Used: api.covalenthq.com/v1/:chainId/xy=k/:dexname/ecosystem/
 
-Currently, the API does not return data for every chain and dex combination, but at least one dex is fetched for most included chains.
+Currently, the API does not return data for every chain and dex combination, but at least one dex is fetched for most of the included chains.
 
 ![dex-info](https://user-images.githubusercontent.com/75581935/175809576-4d725bac-6ed6-4041-9f09-2d3d52a39a51.png)
 
