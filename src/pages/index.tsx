@@ -118,6 +118,7 @@ const Home: FC = () => {
 	useEffect(() => {
 		console.log('My chainId', chainId)
 		handleRes()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chainId])
 
 	return (
@@ -265,6 +266,7 @@ const Home: FC = () => {
 											<Tbody>
 												{results.map((item: any) => (
 													<Tr
+														key={item.name}
 														h="50px"
 														borderBottomWidth="1px"
 														borderColor="#DFE6E9"
